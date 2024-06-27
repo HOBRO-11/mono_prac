@@ -1,0 +1,3 @@
+user:
+  exception:
+    not_found: "this user not found"
