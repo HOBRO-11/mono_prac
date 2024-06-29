@@ -18,7 +18,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import net.rakugakibox.util.YamlResourceBundle;
 
 @Configuration
-public class MessageConfiguration implements WebMvcConfigurer {
+public class MessageConfig implements WebMvcConfigurer {
 
     @Bean // 세션에 지역 설정. default는 KOREAN = 'ko'
     public SessionLocaleResolver localResolver() {

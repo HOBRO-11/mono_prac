@@ -1,3 +1,8 @@
 user:
   exception:
     not_found: "this user not found"
+
+ticket:
+  exception:
+    not_found: "this ticket not found."
+    already_exist: "this ticket already exist."
