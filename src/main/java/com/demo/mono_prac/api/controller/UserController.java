@@ -23,18 +23,18 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
-@Transactional
 @RequiredArgsConstructor
 public class UserController {
-
+    
     private final UserService userService;
-
+    
     @PostMapping
+    @Transactional
     public ResponseEntity<String> join(@RequestBody @Valid UserJoinReq userJoinReq) {
         userService.createUser(userJoinReq);
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }
-
+    
     @GetMapping("/{userId}")
     public ResponseEntity<UserResp> getUserInfo(@PathVariable String userId) {
         Users user = userService.getUserByUserId(userId);
@@ -43,16 +43,18 @@ public class UserController {
         userResp.setUserId(user.getUserId());
         return new ResponseEntity<>(userResp, HttpStatus.OK);
     }
-
+    
     @DeleteMapping("/{userId}")
+    @Transactional
     public ResponseEntity<String> removeUser(@PathVariable String userId) {
         userService.removeUser(userId);
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }
-
+    
     @PutMapping("/nickname/{userId}")
+    @Transactional
     public ResponseEntity<String> modifyUserNickname(@PathVariable String userId,
-            @RequestBody UserUpdateNicknameReq userDTO) {
+    @RequestBody UserUpdateNicknameReq userDTO) {
         if (userId.equals(userDTO.getUserId()) == false) {
             return new ResponseEntity<>("Fail", HttpStatus.UNAUTHORIZED);
         }

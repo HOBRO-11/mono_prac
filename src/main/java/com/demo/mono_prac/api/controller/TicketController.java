@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/tickets")
-@Transactional
 @RequiredArgsConstructor
 public class TicketController {
 
@@ -31,6 +30,7 @@ public class TicketController {
     private final UserService userService;
 
     @PostMapping
+    @Transactional
     ResponseEntity<String> createTicket(@RequestBody @Valid TicketCreateReq ticketCreateReq) {
         String userId = ticketCreateReq.getUserId();
         Users user = userService.getUserByUserId(userId);
@@ -57,6 +57,7 @@ public class TicketController {
     }
 
     @DeleteMapping
+    @Transactional
     ResponseEntity<String> removeTicket(@RequestBody @Valid TicketSerialNumReq ticketSerialNumReq) {
         ticketService.removeTicket(ticketSerialNumReq);
         return new ResponseEntity<>("Success", HttpStatus.OK);
