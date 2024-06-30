@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.demo.mono_prac.api.request.TicketSerialNumReq;
 import com.demo.mono_prac.api.service.TicketService;
+import com.demo.mono_prac.common.aop.RedissonLock;
 import com.demo.mono_prac.common.execption.TicketAlreadyExistException;
 import com.demo.mono_prac.common.execption.TicketNotFoundException;
 import com.demo.mono_prac.db.entity.Tickets;
@@ -20,8 +21,10 @@ import lombok.RequiredArgsConstructor;
 public class TicketJpaService implements TicketService {
 
     private final TicketRepository ticketRepository;
+    private final static String TICKET_CREATE_REDISSON_LOCK_FORMAT = "#ticketSerialNumReq.getCode().concat('-').concat(#ticketSerialNumReq.getSeatRow()).concat('-').concat(#ticketSerialNumReq.getSeatColumn())";
 
     @Override
+    @RedissonLock(lockFormat = TICKET_CREATE_REDISSON_LOCK_FORMAT)
     public Tickets createTicket(TicketSerialNumReq ticketSerialNumReq, Users user) {
         String code = ticketSerialNumReq.getCode();
         String seatRow = ticketSerialNumReq.getSeatRow();
