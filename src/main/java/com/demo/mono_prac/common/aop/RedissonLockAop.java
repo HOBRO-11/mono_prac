@@ -38,16 +38,20 @@ public class RedissonLockAop {
             boolean available = lock.tryLock(redissonLock.waitTime(), redissonLock.leaseTime(),
                     redissonLock.timeUnit());
             if (!available) {
-                return false;
+                return null;
             }
+
             return aopForTransaction.proceed(joinPoint);
         } catch (InterruptedException e) {
-            throw new InterruptedException();
+            Thread.currentThread().interrupt();
+            throw e;
         } finally {
             try {
-                lock.unlock();
+                if (lock.isHeldByCurrentThread()) {
+                    lock.unlock();
+                }
             } catch (IllegalMonitorStateException e) {
-                log.info("Redisson Lock Already UnLock {} {}",
+                log.warn("Redisson Lock Already UnLock {} {}",
                         Collections.singletonMap("serviceName", method.getName()),
                         Collections.singletonMap("key", key));
             }

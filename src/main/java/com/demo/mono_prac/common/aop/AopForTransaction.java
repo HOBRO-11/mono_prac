@@ -4,15 +4,17 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 @Component
 public class AopForTransaction {
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 2)
     public Object proceed(ProceedingJoinPoint joinPoint) throws Throwable {
-        String currentTransactionName = TransactionSynchronizationManager.getCurrentTransactionName();
-        System.out.println(currentTransactionName);
-        return joinPoint.proceed();
+        try {
+            return joinPoint.proceed();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }
