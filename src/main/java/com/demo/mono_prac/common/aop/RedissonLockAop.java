@@ -47,9 +47,7 @@ public class RedissonLockAop {
             throw e;
         } finally {
             try {
-                if (lock.isHeldByCurrentThread()) {
-                    lock.unlock();
-                }
+                lock.unlock();
             } catch (IllegalMonitorStateException e) {
                 log.warn("Redisson Lock Already UnLock {} {}",
                         Collections.singletonMap("serviceName", method.getName()),

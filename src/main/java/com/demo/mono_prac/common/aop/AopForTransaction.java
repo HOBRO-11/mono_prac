@@ -10,11 +10,7 @@ public class AopForTransaction {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 2)
     public Object proceed(ProceedingJoinPoint joinPoint) throws Throwable {
-        try {
             return joinPoint.proceed();
-        } catch (Exception e) {
-            return null;
-        }
     }
 
 }
