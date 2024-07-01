@@ -19,4 +19,5 @@ public interface TicketRepository extends JpaRepository<Tickets, Long> {
     Page<Tickets> findAllByUsers(Users users, @NonNull Pageable pageable);
     Optional<Tickets> findByCodeAndSeatRowAndSeatColumn(String code, String seatRow, int seatColumn);
     Page<Tickets> findByCode(String code, Pageable pageable);
+    boolean existsByCodeAndSeatRowAndSeatColumn(String code, String seatRow, String seatColumn);
 }

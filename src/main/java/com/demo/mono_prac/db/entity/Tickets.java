@@ -1,11 +1,7 @@
 package com.demo.mono_prac.db.entity;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
-import org.springframework.data.annotation.CreatedDate;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;

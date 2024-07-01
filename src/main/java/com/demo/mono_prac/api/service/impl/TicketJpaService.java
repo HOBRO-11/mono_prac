@@ -35,7 +35,6 @@ public class TicketJpaService implements TicketService {
             throw new TicketAlreadyExistException();
         }
         
-
         Tickets tickets = new Tickets();
         tickets.setCode(code);
         tickets.setSeatRow(seatRow);

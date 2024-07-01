@@ -36,7 +36,11 @@ public class TicketController {
         Users user = userService.getUserByUserId(userId);
 
         TicketSerialNumReq ticketSerialNumReq = getTicketSerialNumReq(ticketCreateReq);
-        ticketService.createTicket(ticketSerialNumReq, user);
+        Tickets ticket = ticketService.createTicket(ticketSerialNumReq, user);
+        if(ticket ==null){
+            return new ResponseEntity<>("Fail", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }
 
