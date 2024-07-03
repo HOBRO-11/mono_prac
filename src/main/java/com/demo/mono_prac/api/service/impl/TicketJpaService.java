@@ -5,11 +5,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.demo.mono_prac.api.request.TicketSerialNumReq;
+import com.demo.mono_prac.api.request.TicketSeatReq;
 import com.demo.mono_prac.api.service.TicketService;
-import com.demo.mono_prac.common.aop.RedissonLock;
 import com.demo.mono_prac.common.execption.TicketAlreadyExistException;
 import com.demo.mono_prac.common.execption.TicketNotFoundException;
+import com.demo.mono_prac.db.entity.TicketInfos;
 import com.demo.mono_prac.db.entity.Tickets;
 import com.demo.mono_prac.db.entity.Users;
 import com.demo.mono_prac.db.repository.TicketRepository;
@@ -21,33 +21,36 @@ import lombok.RequiredArgsConstructor;
 public class TicketJpaService implements TicketService {
 
     private final TicketRepository ticketRepository;
-    private final static String TICKET_CREATE_REDISSON_LOCK_FORMAT = "#ticketSerialNumReq.getCode().concat('-').concat(#ticketSerialNumReq.getSeatRow()).concat('-').concat(#ticketSerialNumReq.getSeatColumn())";
 
     @Override
-    @RedissonLock(lockFormat = TICKET_CREATE_REDISSON_LOCK_FORMAT)
-    public Tickets createTicket(TicketSerialNumReq ticketSerialNumReq, Users user) {
-        String code = ticketSerialNumReq.getCode();
-        String seatRow = ticketSerialNumReq.getSeatRow();
-        int seatColumn = ticketSerialNumReq.getSeatColumn();
+    public Tickets createTicket(TicketSeatReq ticketSeatReq, Users user, TicketInfos ticketInfos) {
+        String seatRow = ticketSeatReq.getSeatRow();
+        int seatColumn = ticketSeatReq.getSeatColumn();
 
-        boolean isPresent = ticketRepository.findByCodeAndSeatRowAndSeatColumn(code, seatRow, seatColumn).isPresent();
+        boolean isPresent = ticketRepository.existsByTicketInfosAndSeatRowAndSeatColumn(ticketInfos, seatRow,
+                seatColumn);
         if (isPresent) {
             throw new TicketAlreadyExistException();
         }
-        
+
         Tickets tickets = new Tickets();
-        tickets.setCode(code);
+        tickets.setTicketInfos(ticketInfos);
         tickets.setSeatRow(seatRow);
         tickets.setSeatColumn(seatColumn);
         tickets.setUsers(user);
+        ticketRepository.save(tickets);
+
+        user.addTicket(tickets);
+        ticketInfos.addTickets(tickets);
+
         ticketRepository.save(tickets);
         return tickets;
     }
 
     @Override
-    public Page<Tickets> getTicketByCode(String code, int page, int size) {
+    public Page<Tickets> getTicketByTicketInfo(TicketInfos ticketInfos, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return ticketRepository.findByCode(code, pageable);
+        return ticketRepository.findByTicketInfos(ticketInfos, pageable);
     }
 
     @Override
@@ -56,20 +59,18 @@ public class TicketJpaService implements TicketService {
     }
 
     @Override
-    public Tickets getTicketBySerialNum(TicketSerialNumReq ticketSerialNumReq) {
-        String code = ticketSerialNumReq.getCode();
-        String seatRow = ticketSerialNumReq.getSeatRow();
-        int seatColumn = ticketSerialNumReq.getSeatColumn();
-        return ticketRepository.findByCodeAndSeatRowAndSeatColumn(code, seatRow, seatColumn)
+    public Tickets getTicketBySeatAndTicketInfo(TicketSeatReq ticketSeatReq, TicketInfos ticketInfos) {
+        String seatRow = ticketSeatReq.getSeatRow();
+        int seatColumn = ticketSeatReq.getSeatColumn();
+        return ticketRepository.findByTicketInfosAndSeatRowAndSeatColumn(ticketInfos, seatRow, seatColumn)
                 .orElseThrow(() -> new TicketNotFoundException());
     }
 
     @Override
-    public void removeTicket(TicketSerialNumReq ticketSerialNumReq) {
-        String code = ticketSerialNumReq.getCode();
-        String seatRow = ticketSerialNumReq.getSeatRow();
-        int seatColumn = ticketSerialNumReq.getSeatColumn();
-        Tickets ticket = ticketRepository.findByCodeAndSeatRowAndSeatColumn(code, seatRow, seatColumn)
+    public void removeTicket(TicketSeatReq ticketSeatReq, TicketInfos ticketInfos) {
+        String seatRow = ticketSeatReq.getSeatRow();
+        int seatColumn = ticketSeatReq.getSeatColumn();
+        Tickets ticket = ticketRepository.findByTicketInfosAndSeatRowAndSeatColumn(ticketInfos, seatRow, seatColumn)
                 .orElseThrow(() -> new TicketNotFoundException());
         ticketRepository.delete(ticket);
     }

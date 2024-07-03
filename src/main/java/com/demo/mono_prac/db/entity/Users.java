@@ -30,7 +30,7 @@ public class Users extends BaseEntity implements Serializable {
     @JsonIgnore
     @JsonProperty(access = Access.WRITE_ONLY)
     private String password;
-    @Column(name = "TICKETS_ID")
+    // @Column(name = "TICKETS_ID")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "users")
     private List<Tickets> ticketList = new ArrayList<>();
 

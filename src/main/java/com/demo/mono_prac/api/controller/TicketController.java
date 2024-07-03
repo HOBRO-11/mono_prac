@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.mono_prac.api.request.TicketCreateReq;
-import com.demo.mono_prac.api.request.TicketSerialNumReq;
+import com.demo.mono_prac.api.request.TicketInfoReq;
+import com.demo.mono_prac.api.request.TicketSeatReq;
 import com.demo.mono_prac.api.response.TicketResp;
+import com.demo.mono_prac.api.service.TicketInfoService;
 import com.demo.mono_prac.api.service.TicketService;
 import com.demo.mono_prac.api.service.UserService;
+import com.demo.mono_prac.common.aop.RedissonLock;
+import com.demo.mono_prac.db.entity.TicketInfos;
 import com.demo.mono_prac.db.entity.Tickets;
 import com.demo.mono_prac.db.entity.Users;
 
@@ -28,53 +32,97 @@ public class TicketController {
 
     private final TicketService ticketService;
     private final UserService userService;
+    private final TicketInfoService ticketInfoService;
+    private final static String TICKET_CREATE_REDISSON_LOCK_FORMAT = "#ticketCreateReq.ticketId +'-'+ #ticketCreateReq.seatRow + '-' + #ticketCreateReq.seatColumn";
 
     @PostMapping
-    @Transactional
+    @RedissonLock(lockFormat = TICKET_CREATE_REDISSON_LOCK_FORMAT)
     ResponseEntity<String> createTicket(@RequestBody @Valid TicketCreateReq ticketCreateReq) {
         String userId = ticketCreateReq.getUserId();
         Users user = userService.getUserByUserId(userId);
 
-        TicketSerialNumReq ticketSerialNumReq = getTicketSerialNumReq(ticketCreateReq);
-        Tickets ticket = ticketService.createTicket(ticketSerialNumReq, user);
-        if(ticket ==null){
+        Long ticketId = ticketCreateReq.getTicketId();
+        TicketInfos ticketInfo = ticketInfoService.getTicketInfoById(ticketId);
+
+        TicketInfoReq ticketInfoReq = getTicketInfoReq(ticketCreateReq);
+        boolean seatAvailable = ticketInfoService.isSeatAvailable(ticketInfoReq);
+
+        Tickets ticket = null;
+
+        if (seatAvailable) {
+            TicketSeatReq ticketSeatReq = getTicketSeatReq(ticketCreateReq);
+            ticket = ticketService.createTicket(ticketSeatReq, user, ticketInfo);
+        }
+
+        if (ticket == null) {
             return new ResponseEntity<>("Fail", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
+
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }
 
     @GetMapping
-    ResponseEntity<TicketResp> getTicketInfo(@RequestBody @Valid TicketSerialNumReq ticketSerialNumReq) {
-        Tickets ticket = ticketService.getTicketBySerialNum(ticketSerialNumReq);
+    ResponseEntity<TicketResp> getTicketInfo(@RequestBody @Valid TicketInfoReq ticketInfoReq) {
+        Long ticketId = ticketInfoReq.getTicketId();
+        TicketInfos ticketInfo = ticketInfoService.getTicketInfoById(ticketId);
 
-        String code = ticket.getCode();
-        String seatRow = ticket.getSeatRow();
-        int seatColumn = ticket.getSeatColumn();
+        TicketSeatReq ticketSeatReq = getTicketSeatReq(ticketInfoReq);
+        ticketService.getTicketBySeatAndTicketInfo(ticketSeatReq, ticketInfo);
 
-        TicketResp ticketResp = new TicketResp();
-        ticketResp.setCode(code);
-        ticketResp.setSeatRow(seatRow);
-        ticketResp.setSeatColumn(seatColumn);
-
+        TicketResp ticketResp = getTicketResp(ticketInfoReq);
         return new ResponseEntity<>(ticketResp, HttpStatus.OK);
     }
 
     @DeleteMapping
     @Transactional
-    ResponseEntity<String> removeTicket(@RequestBody @Valid TicketSerialNumReq ticketSerialNumReq) {
-        ticketService.removeTicket(ticketSerialNumReq);
+    ResponseEntity<String> removeTicket(@RequestBody @Valid TicketInfoReq ticketInfoReq) {
+        Long ticketId = ticketInfoReq.getTicketId();
+        TicketInfos ticketInfo = ticketInfoService.getTicketInfoById(ticketId);
+
+        TicketSeatReq ticketSeatReq = getTicketSeatReq(ticketInfoReq);
+        ticketService.removeTicket(ticketSeatReq, ticketInfo);
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }
 
-    private TicketSerialNumReq getTicketSerialNumReq(TicketCreateReq ticketCreateReq) {
-        String code = ticketCreateReq.getCode();
+    private TicketSeatReq getTicketSeatReq(TicketInfoReq ticketInfoReq) {
+        String seatRow = ticketInfoReq.getSeatRow();
+        int seatColumn = ticketInfoReq.getSeatColumn();
+        TicketSeatReq ticketSeatReq = new TicketSeatReq();
+        ticketSeatReq.setSeatRow(seatRow);
+        ticketSeatReq.setSeatColumn(seatColumn);
+        return ticketSeatReq;
+    }
+
+    private TicketSeatReq getTicketSeatReq(TicketCreateReq ticketCreateReq) {
         String seatRow = ticketCreateReq.getSeatRow();
         int seatColumn = ticketCreateReq.getSeatColumn();
-        TicketSerialNumReq ticketSerialNumReq = new TicketSerialNumReq();
-        ticketSerialNumReq.setCode(code);
-        ticketSerialNumReq.setSeatRow(seatRow);
-        ticketSerialNumReq.setSeatColumn(seatColumn);
-        return ticketSerialNumReq;
+        TicketSeatReq ticketSeatReq = new TicketSeatReq();
+        ticketSeatReq.setSeatRow(seatRow);
+        ticketSeatReq.setSeatColumn(seatColumn);
+        return ticketSeatReq;
+    }
+
+    private TicketResp getTicketResp(TicketInfoReq ticketInfoReq) {
+        Long ticketId = ticketInfoReq.getTicketId();
+        String seatRow = ticketInfoReq.getSeatRow();
+        int seatColumn = ticketInfoReq.getSeatColumn();
+        TicketResp ticketResp = new TicketResp();
+        ticketResp.setTicketId(ticketId);
+        ticketResp.setSeatRow(seatRow);
+        ticketResp.setSeatColumn(seatColumn);
+        return ticketResp;
+    }
+
+    private TicketInfoReq getTicketInfoReq(TicketCreateReq ticketCreateReq) {
+        Long ticketId = ticketCreateReq.getTicketId();
+        String seatRow = ticketCreateReq.getSeatRow();
+        int seatColumn = ticketCreateReq.getSeatColumn();
+
+        TicketInfoReq ticketInfoReq = new TicketInfoReq();
+        ticketInfoReq.setTicketId(ticketId);
+        ticketInfoReq.setSeatRow(seatRow);
+        ticketInfoReq.setSeatColumn(seatColumn);
+
+        return ticketInfoReq;
     }
 }

@@ -10,7 +10,7 @@ import lombok.Setter;
 public class TicketCreateReq {
     @Email
     private String userId;
-    private String code;
+    private Long ticketId;
     @Pattern(regexp = "^[A-Za-z]$")
     private String seatRow;
     private int seatColumn;

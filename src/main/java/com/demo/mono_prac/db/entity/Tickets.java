@@ -19,15 +19,21 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Tickets extends BaseEntity implements Serializable {
-    private String code;
+
+    @JoinColumn(name = "TICKET_INFOS_ID")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private TicketInfos ticketInfos;
+
     private String seatRow;
+
     private int seatColumn;
+
     @JoinColumn(name = "USERS_ID")
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Users users;
 
     public String getSerialNum() {
         String serialNumFormat = "%s:%s-%s";
-        return String.format(serialNumFormat, code, seatRow, seatColumn);
+        return String.format(serialNumFormat, ticketInfos.getId(), seatRow, seatColumn);
     }
 }
