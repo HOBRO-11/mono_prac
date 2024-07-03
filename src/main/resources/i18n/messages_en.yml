@@ -6,3 +6,7 @@ ticket:
   exception:
     not_found: "this ticket not found."
     already_exist: "this ticket already exist."
+
+ticketInfo:
+  exception:
+    not_exists: "this ticketInfo not exists."

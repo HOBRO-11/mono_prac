@@ -6,3 +6,7 @@ ticket:
   exception:
     not_found: "해당 티켓은 존재하지 않습니다."
     already_exist: "이미 존재하는 티켓입니다."
+
+ticketInfo:
+  exception:
+    not_exists: "해당 티켓정보는 존재하지 않습니다."
