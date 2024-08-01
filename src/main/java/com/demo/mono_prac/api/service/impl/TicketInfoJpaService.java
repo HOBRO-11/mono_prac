@@ -38,7 +38,7 @@ public class TicketInfoJpaService implements TicketInfoService {
             List<Seat> availableSeat = ticketInfoCreateReq.getAvailableSeat();
             json = mapper.writeToJsonString(availableSeat);
         } catch (JsonProcessingException e) {
-            throw new TicketInfoCantAcceptException(e);
+            throw new TicketInfoCantAcceptException();
         }
         TicketInfos ticketInfos = new TicketInfos();
         ticketInfos.setTitle(title);
@@ -79,6 +79,7 @@ public class TicketInfoJpaService implements TicketInfoService {
             });
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            throw new TicketInfoCantAcceptException();
         }
         for (Seat seat : value) {
             String row = seat.getSeatRow();
