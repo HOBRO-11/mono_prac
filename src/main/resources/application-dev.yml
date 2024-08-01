@@ -7,9 +7,10 @@ spring:
 
   jpa:
     # hibernate:
-      # ddl-auto: create
+    #   ddl-auto: create
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         '[format_sql]': true
         '[show_sq]': true
   
@@ -17,3 +18,7 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
+
+realtime:
+  seats:
+    prefix: "ticketSeats:"

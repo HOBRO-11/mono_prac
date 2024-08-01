@@ -11,3 +11,7 @@ ticketInfo:
   exception:
     not_exists: "this ticketInfo not exists."
         cant_accept: "The seat information on the ticket is not in the format."
+
+realtimeSeat:
+  exception:
+    not_exists: "The real-time seat information does not exist."
