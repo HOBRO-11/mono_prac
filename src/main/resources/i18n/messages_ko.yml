@@ -10,3 +10,4 @@ ticket:
 ticketInfo:
   exception:
     not_exists: "해당 티켓정보는 존재하지 않습니다."
+    cant_accept: "해당 티겟에 할당된 좌석의 형식이 잘못 되었습니다."

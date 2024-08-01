@@ -12,13 +12,14 @@ import org.springframework.stereotype.Service;
 import com.demo.mono_prac.api.request.TicketInfoCreateReq;
 import com.demo.mono_prac.api.request.TicketInfoReq;
 import com.demo.mono_prac.api.service.TicketInfoService;
+import com.demo.mono_prac.common.execption.TicketInfoCantAcceptException;
 import com.demo.mono_prac.common.execption.TicketInfoNotExistsException;
 import com.demo.mono_prac.common.model.Seat;
+import com.demo.mono_prac.common.util.CustomMapper;
 import com.demo.mono_prac.db.entity.TicketInfos;
 import com.demo.mono_prac.db.repository.TicketInfosRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,16 +28,17 @@ import lombok.RequiredArgsConstructor;
 public class TicketInfoJpaService implements TicketInfoService {
 
     private final TicketInfosRepository ticketInfosRepository;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final CustomMapper mapper;
 
     @Override
     public TicketInfos createTicketInfo(TicketInfoCreateReq ticketInfoCreateReq) throws BadRequestException {
         String title = ticketInfoCreateReq.getTitle();
-        String json;
+        String json = null;
         try {
-            json = ticketInfoCreateReq.getJsonOfAvailableSeat();
+            List<Seat> availableSeat = ticketInfoCreateReq.getAvailableSeat();
+            json = mapper.writeToJsonString(availableSeat);
         } catch (JsonProcessingException e) {
-            throw new BadRequestException();
+            throw new TicketInfoCantAcceptException(e);
         }
         TicketInfos ticketInfos = new TicketInfos();
         ticketInfos.setTitle(title);
