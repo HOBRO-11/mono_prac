@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.demo.mono_prac.api.request.UserJoinReq;
 import com.demo.mono_prac.api.request.UserUpdateNicknameReq;
 import com.demo.mono_prac.api.service.UserService;
+import com.demo.mono_prac.common.execption.UserAlreadyExistException;
 import com.demo.mono_prac.common.execption.UserNotFoundException;
 import com.demo.mono_prac.db.entity.Users;
 import com.demo.mono_prac.db.repository.UserRepository;
@@ -19,6 +20,10 @@ public class UserJpaService implements UserService {
 
     @Override
     public Users createUser(UserJoinReq userJoinReq) {
+        String userId = userJoinReq.getUserId();
+        if(userRepository.existsByUserId(userId)){
+            throw new UserAlreadyExistException();
+        }
         Users user = new Users();
         user.setUserId(userJoinReq.getUserId());
         user.setPassword(userJoinReq.getPassword());

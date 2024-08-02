@@ -1,6 +1,7 @@
 user:
   exception:
     not_found: "해당 유저는 존재하지 않습니다."
+    already_exist: "해당 유저는 이미 존재합니다."
 
 ticket:
   exception:
@@ -10,6 +11,7 @@ ticket:
 ticketInfo:
   exception:
     not_exists: "해당 티켓정보는 존재하지 않습니다."
+    already_exist: "해당 티켓정보의 title은 이미 존재하는 title입니다."
     cant_accept: "해당 티겟에 할당된 좌석의 형식이 잘못 되었습니다."
 
 realtimeSeat:

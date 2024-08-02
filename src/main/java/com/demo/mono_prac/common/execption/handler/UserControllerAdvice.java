@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.demo.mono_prac.common.execption.UserAlreadyExistException;
 import com.demo.mono_prac.common.execption.UserNotFoundException;
 import com.demo.mono_prac.common.util.UserUtil;
 
@@ -19,8 +20,15 @@ public class UserControllerAdvice {
     private final UserUtil userUtil;
 
     @ExceptionHandler
-    public ResponseEntity<String> userExHandler(UserNotFoundException ex) {
+    public ResponseEntity<String> userNotFoundExHandler(UserNotFoundException ex) {
         String errorResult = getMessage(ex, userUtil.USER_NOT_FOUND_EXCEPTION_MESSAGE);
+        log.error(errorResult);
+        return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> userAlreadyExistExHandler(UserAlreadyExistException ex) {
+        String errorResult = getMessage(ex, userUtil.USER_ALREADY_EXIST_EXCEPTION_MESSAGE);
         log.error(errorResult);
         return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
     }

@@ -10,4 +10,7 @@ import com.demo.mono_prac.db.entity.Users;
 @Repository
 public interface UserRepository extends JpaRepository<Users, Long>{
     Optional<Users> findByUserId(String userId);
+
+    boolean existsByUserId(String userId);
+
 }
