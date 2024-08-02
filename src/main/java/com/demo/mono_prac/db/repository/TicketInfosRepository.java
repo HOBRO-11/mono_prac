@@ -10,4 +10,5 @@ import com.demo.mono_prac.db.entity.TicketInfos;
 @Repository
 public interface TicketInfosRepository extends JpaRepository<TicketInfos, Long>{
     Page<TicketInfos> findByTitleContaining(String title, Pageable pageable);
+    boolean existsByTitle(String title);
 }

@@ -41,7 +41,7 @@ public class TicketInfoController {
     }
 
     @DeleteMapping
-    public ResponseEntity<String> removeTicketInfo(Long id){
+    public ResponseEntity<String> removeTicketInfo(@RequestParam Long id){
         ticketInfoService.removeTicketInfo(id);
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }

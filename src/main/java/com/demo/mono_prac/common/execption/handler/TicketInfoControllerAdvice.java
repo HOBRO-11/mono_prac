@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.demo.mono_prac.common.execption.TicketInfoAlreadyExistException;
 import com.demo.mono_prac.common.execption.TicketInfoCantAcceptException;
 import com.demo.mono_prac.common.execption.TicketInfoNotExistsException;
 import com.demo.mono_prac.common.util.TicketInfoUtil;
@@ -26,13 +27,20 @@ public class TicketInfoControllerAdvice {
         return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
     }
 
-
     @ExceptionHandler
     public ResponseEntity<String> ticketInfoCantAcceptExHandler(TicketInfoCantAcceptException ex) {
         String errorResult = getMessage(ex, ticketInfoUtil.TICKET_INFO_CANT_ACCEPT_EX_MESSAGE);
         log.error(errorResult);
         return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler
+    public ResponseEntity<String> ticketInfoAlreadyExistExHandler(TicketInfoAlreadyExistException ex) {
+        String errorResult = getMessage(ex, ticketInfoUtil.TICKET_INFO_ALREADY_EXIST_EX_MESSAGE);
+        log.error(errorResult);
+        return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
+    }
+
     private String getMessage(RuntimeException ex, String defaultMessage) {
         if (ex.getMessage() == null) {
             return defaultMessage;

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.demo.mono_prac.api.request.TicketInfoCreateReq;
 import com.demo.mono_prac.api.request.TicketInfoReq;
 import com.demo.mono_prac.api.service.TicketInfoService;
+import com.demo.mono_prac.common.execption.TicketInfoAlreadyExistException;
 import com.demo.mono_prac.common.execption.TicketInfoCantAcceptException;
 import com.demo.mono_prac.common.execption.TicketInfoNotExistsException;
 import com.demo.mono_prac.common.model.Seat;
@@ -33,6 +34,9 @@ public class TicketInfoJpaService implements TicketInfoService {
     @Override
     public TicketInfos createTicketInfo(TicketInfoCreateReq ticketInfoCreateReq) throws BadRequestException {
         String title = ticketInfoCreateReq.getTitle();
+        if(ticketInfosRepository.existsByTitle(title)){
+            throw new TicketInfoAlreadyExistException();
+        }
         String json = null;
         try {
             List<Seat> availableSeat = ticketInfoCreateReq.getAvailableSeat();
