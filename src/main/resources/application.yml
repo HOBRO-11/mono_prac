@@ -1,7 +1,11 @@
 spring:
-  profiles:
-    active:
-    - dev
+  # profiles:
+  #   active:
+  #   - dev
   messages:
     basename: i18n/messages
     encoding: UTF-8
+
+realtime:
+  seats:
+    prefix: "ticketSeats:"
