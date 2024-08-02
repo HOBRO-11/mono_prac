@@ -86,7 +86,7 @@ public class TicketInfoJpaService implements TicketInfoService {
             if (seatRow.equals(row)) {
                 int startColumn = seat.getStartSeatColumn();
                 int endColumn = seat.getEndSeatColumn();
-                if (startColumn < seatColumn && seatColumn < endColumn) {
+                if (startColumn <= seatColumn && seatColumn <= endColumn) {
                     return true;
                 }
             }
