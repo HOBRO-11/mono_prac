@@ -16,7 +16,7 @@ import com.demo.mono_prac.api.response.TicketResp;
 import com.demo.mono_prac.api.service.TicketInfoService;
 import com.demo.mono_prac.api.service.TicketService;
 import com.demo.mono_prac.api.service.UserService;
-import com.demo.mono_prac.common.aop.RedissonLock;
+import com.demo.mono_prac.common.aop.RedisLock;
 import com.demo.mono_prac.db.entity.TicketInfos;
 import com.demo.mono_prac.db.entity.Tickets;
 import com.demo.mono_prac.db.entity.Users;
@@ -33,10 +33,10 @@ public class TicketController {
     private final TicketService ticketService;
     private final UserService userService;
     private final TicketInfoService ticketInfoService;
-    private final static String TICKET_CREATE_REDISSON_LOCK_FORMAT = "#ticketCreateReq.ticketId +'-'+ #ticketCreateReq.seatRow + '-' + #ticketCreateReq.seatColumn";
+    private final static String TICKET_CREATE_REDIS_LOCK_FORMAT = "#ticketCreateReq.ticketId +'-'+ #ticketCreateReq.seatRow + '-' + #ticketCreateReq.seatColumn";
 
     @PostMapping
-    @RedissonLock(lockFormat = TICKET_CREATE_REDISSON_LOCK_FORMAT)
+    @RedisLock(lockFormat = TICKET_CREATE_REDIS_LOCK_FORMAT)
     ResponseEntity<String> createTicket(@RequestBody @Valid TicketCreateReq ticketCreateReq) {
         String userId = ticketCreateReq.getUserId();
         Users user = userService.getUserByUserId(userId);
